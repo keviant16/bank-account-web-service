@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AccountTest {
 
@@ -89,5 +90,11 @@ public class AccountTest {
     @Test
     void test_pin_is_not_ok() {
         assertEquals(false,account.isPinValid(7894));
+    }
+
+    @Test
+    void test_generate_code_pin(){
+        account.generateCodePin();
+        assertTrue(account.getCodePin() > 999);
     }
 }
