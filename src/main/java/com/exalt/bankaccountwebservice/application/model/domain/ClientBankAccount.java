@@ -1,4 +1,4 @@
-package com.exalt.bankaccountwebservice.application.domain;
+package com.exalt.bankaccountwebservice.application.model.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

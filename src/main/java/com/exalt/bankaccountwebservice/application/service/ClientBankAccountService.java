@@ -1,13 +1,11 @@
 package com.exalt.bankaccountwebservice.application.service;
 
-import com.exalt.bankaccountwebservice.application.domain.ClientBankAccount;
-import com.exalt.bankaccountwebservice.application.domain.EOperation;
-import com.exalt.bankaccountwebservice.application.domain.Operation;
+import com.exalt.bankaccountwebservice.application.model.domain.ClientBankAccount;
+import com.exalt.bankaccountwebservice.application.model.domain.EOperation;
+import com.exalt.bankaccountwebservice.application.model.domain.Operation;
+import com.exalt.bankaccountwebservice.application.model.request.OperationRequest;
 import com.exalt.bankaccountwebservice.application.port.incoming.*;
-import com.exalt.bankaccountwebservice.application.port.outgoing.CheckEmailPort;
-import com.exalt.bankaccountwebservice.application.port.outgoing.LoadAccountPort;
-import com.exalt.bankaccountwebservice.application.port.outgoing.SaveAccountPort;
-import com.exalt.bankaccountwebservice.application.port.outgoing.SendEmailPort;
+import com.exalt.bankaccountwebservice.application.port.outgoing.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,7 +18,6 @@ public class ClientBankAccountService implements DepositUseCase, WithdrawUseCase
     private LoadAccountPort loadAccountPort;
     private SaveAccountPort saveAccountPort;
     private CheckEmailPort checkEmailPort;
-
     private SendEmailPort sendEmailPort;
 
     public ClientBankAccountService(LoadAccountPort loadAccountPort, SaveAccountPort saveAccountPort, CheckEmailPort checkEmailPort, SendEmailPort sendEmailPort) {
@@ -31,12 +28,15 @@ public class ClientBankAccountService implements DepositUseCase, WithdrawUseCase
     }
 
     @Override
-    public void deposit(Long accountId, BigDecimal amount) {
+    public void deposit(Long accountId, OperationRequest request) {
         ClientBankAccount account = loadAccountPort.load(accountId).orElseThrow(NoSuchElementException::new);
-        boolean hasDeposit = account.deposit(amount);
+        boolean hasDeposit = account.deposit(request.getAmount());
+        boolean isPinValid = account.isPinValid(request.getCodePin());
 
-        if(!hasDeposit) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Negative number are not allowed !");
-        account.addOperation(amount, EOperation.DEPOSIT);
+        if (!isPinValid) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The code pin is incorrect !");
+        if (!hasDeposit) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot deposit negative values !");
+
+        account.addOperation(request.getAmount(), EOperation.DEPOSIT);
         saveAccountPort.save(account);
     }
 
@@ -47,17 +47,20 @@ public class ClientBankAccountService implements DepositUseCase, WithdrawUseCase
     }
 
     @Override
-    public void withdraw(Long accountId, BigDecimal amount) {
+    public void withdraw(Long accountId, OperationRequest request) {
         ClientBankAccount account = loadAccountPort.load(accountId).orElseThrow(NoSuchElementException::new);
-        boolean hasDeposit = account.withdraw(amount);
+        boolean hasDeposit = account.withdraw(request.getAmount());
+        boolean isPinValid = account.isPinValid(request.getCodePin());
 
-        if(!hasDeposit) return;
-        account.addOperation(amount, EOperation.WITHDRAW);
+        if (!isPinValid) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The code pin is incorrect !");
+        if (!hasDeposit) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can’t withdraw, you don’t have enough money in your balance !");
+
+        account.addOperation(request.getAmount(), EOperation.WITHDRAW);
         saveAccountPort.save(account);
     }
 
     @Override
-    public ClientBankAccount open(ClientBankAccount account) {
+    public String open(ClientBankAccount account) {
         boolean emailExist = checkEmailPort.check(account.getEmail());
         if (emailExist) throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exist !");
 
@@ -65,12 +68,11 @@ public class ClientBankAccountService implements DepositUseCase, WithdrawUseCase
 
         boolean emailHasBeenSend = sendEmailPort.sendEmail(account.getEmail(), account.getFirstName(), account.getLastName(), account.getCodePin());
         if (!emailHasBeenSend) throw new ResponseStatusException(HttpStatus.valueOf(500), "Email as not been send");
-        //TODO: encode password
-
 
         account.setBalance(BigDecimal.valueOf(0));
         account.setOperations(new ArrayList<>());
-        return saveAccountPort.save(account);
+        saveAccountPort.save(account);
+        return "Your account has been create! Check your email to get your pin code.";
     }
 
     @Override

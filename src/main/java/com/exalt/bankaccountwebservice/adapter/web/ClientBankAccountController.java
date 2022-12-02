@@ -1,8 +1,10 @@
 package com.exalt.bankaccountwebservice.adapter.web;
 
-import com.exalt.bankaccountwebservice.application.domain.ClientBankAccount;
-import com.exalt.bankaccountwebservice.application.domain.Operation;
+import com.exalt.bankaccountwebservice.application.model.domain.ClientBankAccount;
+import com.exalt.bankaccountwebservice.application.model.domain.Operation;
+import com.exalt.bankaccountwebservice.application.model.request.OperationRequest;
 import com.exalt.bankaccountwebservice.application.port.incoming.*;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -30,19 +32,19 @@ public class ClientBankAccountController {
         this.withdrawUseCase = withdrawUseCase;
     }
 
-    @PostMapping
-    public ClientBankAccount open(@RequestBody ClientBankAccount account){
+    @PostMapping(value = "/open")
+    public String open(@RequestBody ClientBankAccount account){
         return openAccountUseCase.open(account);
     }
 
-    @PutMapping(value = "/{id}/deposit/{amount}")
-    public void deposit(@PathVariable Long id, @PathVariable BigDecimal amount){
-         depositUseCase.deposit(id, amount);
+    @PutMapping(value = "/{id}/deposit")
+    public void deposit(@PathVariable Long id, @RequestBody OperationRequest request){
+         depositUseCase.deposit(id, request);
     }
 
-    @PutMapping(value = "/{id}/withdraw/{amount}")
-    public void withdraw(@PathVariable Long id, @PathVariable BigDecimal amount){
-        withdrawUseCase.withdraw(id, amount);
+    @PutMapping(value = "/{id}/withdraw")
+    public void withdraw(@PathVariable Long id, OperationRequest request){
+        withdrawUseCase.withdraw(id, request);
     }
 
     @GetMapping(value = "/{id}/operations")
@@ -54,5 +56,4 @@ public class ClientBankAccountController {
     public ClientBankAccount viewAccount(@PathVariable Long id){
         return viewAccountUseCase.viewAccount(id);
     }
-
 }

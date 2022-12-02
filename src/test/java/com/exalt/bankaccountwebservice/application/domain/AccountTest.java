@@ -1,5 +1,7 @@
 package com.exalt.bankaccountwebservice.application.domain;
 
+import com.exalt.bankaccountwebservice.application.model.domain.ClientBankAccount;
+import com.exalt.bankaccountwebservice.application.model.domain.EOperation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

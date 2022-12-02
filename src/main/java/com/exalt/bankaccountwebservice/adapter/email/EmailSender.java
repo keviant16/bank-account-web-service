@@ -25,8 +25,8 @@ public class EmailSender implements SendEmailPort {
 
             mailMessage.setFrom(sender);
             mailMessage.setTo(email);
-            mailMessage.setText("Bonjour " + firstName + " " + lastName + ",\nVoici le code pin de votre compte bancaire exalt : " + codePin + ".\n Il va vous permettre de confirmer votre identiter lors de la réalisation d'opérations");
-            mailMessage.setSubject("Code pin Exalt Bank Account");
+            mailMessage.setText("Hello " + firstName + " " + lastName + ",\nHere is the pin code of your bank account exalt : " + codePin + ".\nIt will allow you to confirm your identity when carrying out operations.");
+            mailMessage.setSubject("Exalt Bank Account Pin Code");
 
             javaMailSender.send(mailMessage);
             return true;

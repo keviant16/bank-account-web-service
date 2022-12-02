@@ -1,7 +1,8 @@
 package com.exalt.bankaccountwebservice.application.port.incoming;
 
-import com.exalt.bankaccountwebservice.application.domain.ClientBankAccount;
+
+import com.exalt.bankaccountwebservice.application.model.domain.ClientBankAccount;
 
 public interface OpenAccountUseCase {
-    ClientBankAccount open(ClientBankAccount account);
+    String open(ClientBankAccount account);
 }

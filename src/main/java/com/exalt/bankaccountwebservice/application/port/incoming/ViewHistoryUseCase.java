@@ -1,6 +1,6 @@
 package com.exalt.bankaccountwebservice.application.port.incoming;
 
-import com.exalt.bankaccountwebservice.application.domain.Operation;
+import com.exalt.bankaccountwebservice.application.model.domain.Operation;
 
 import java.util.List;
 
