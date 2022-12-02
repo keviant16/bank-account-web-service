@@ -65,13 +65,14 @@ public class ClientBankAccountService implements DepositUseCase, WithdrawUseCase
         if (emailExist) throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exist !");
 
         account.generateCodePin();
-
-        boolean emailHasBeenSend = sendEmailPort.sendEmail(account.getEmail(), account.getFirstName(), account.getLastName(), account.getCodePin());
-        if (!emailHasBeenSend) throw new ResponseStatusException(HttpStatus.valueOf(500), "Email as not been send");
-
         account.setBalance(BigDecimal.valueOf(0));
         account.setOperations(new ArrayList<>());
+
         saveAccountPort.save(account);
+
+        boolean emailHasBeenSend = sendEmailPort.sendEmail(account);
+        if (!emailHasBeenSend) throw new ResponseStatusException(HttpStatus.valueOf(500), "Email as not been send");
+
         return "Your account has been create! Check your email to get your pin code.";
     }
 

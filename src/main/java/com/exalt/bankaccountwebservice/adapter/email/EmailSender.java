@@ -1,5 +1,6 @@
 package com.exalt.bankaccountwebservice.adapter.email;
 
+import com.exalt.bankaccountwebservice.application.model.domain.ClientBankAccount;
 import com.exalt.bankaccountwebservice.application.port.outgoing.SendEmailPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,13 +20,13 @@ public class EmailSender implements SendEmailPort {
     }
 
     @Override
-    public boolean sendEmail(String email, String firstName, String lastName, int codePin) {
+    public boolean sendEmail(ClientBankAccount account) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
 
             mailMessage.setFrom(sender);
-            mailMessage.setTo(email);
-            mailMessage.setText("Hello " + firstName + " " + lastName + ",\nHere is the pin code of your bank account exalt : " + codePin + ".\nIt will allow you to confirm your identity when carrying out operations.");
+            mailMessage.setTo(account.getEmail());
+            mailMessage.setText("Hello " + account.getFirstName() + " " + account.getLastName() + ",\nHere is your account number and your pin code to access your exalt bank account.\nAccount ID : " + account.getId() + "\nAccount pin code : " + account.getCodePin() + ".\nIt will allow you to confirm your identity when carrying out operations.");
             mailMessage.setSubject("Exalt Bank Account Pin Code");
 
             javaMailSender.send(mailMessage);

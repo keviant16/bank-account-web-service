@@ -1,5 +1,7 @@
 package com.exalt.bankaccountwebservice.application.port.outgoing;
 
+import com.exalt.bankaccountwebservice.application.model.domain.ClientBankAccount;
+
 public interface SendEmailPort {
-    boolean sendEmail(String email, String firstName, String lastName, int codePin);
+    boolean sendEmail(ClientBankAccount account);
 }
